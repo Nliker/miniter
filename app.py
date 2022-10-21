@@ -1,5 +1,3 @@
-import config
-
 from flask import Flask
 from sqlalchemy import create_engine
 from flask_cors import CORS
@@ -29,7 +27,12 @@ def create_app(test_config=None):
     
     services=Services
     services.user_service=UserService(user_dao,app.config)
-    services.tweet_service=TweetService(tweet_dao,app.config)
+    services.tweet_service=TweetService(tweet_dao)
+    
+    @app.route("/ping",methods=["GET"])
+    def ping():
+        return "pong",200    
+        
     UserEndpoint(app,services)
     TweetEndpoint(app,services)
     
