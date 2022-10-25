@@ -1,7 +1,7 @@
 db={
     "user":"codakcodak",
     "password":"dkdrmaghEl83!",
-    "host":"miniter.cnvmcb0pomhk.ap-northeast-2.rds.amazonaws.com",
+    "host":"118.42.101.135",
     "port":3306,
     "database":"miniter"
 }
@@ -9,12 +9,12 @@ JWT_SECRET_KEY="codak"
 test_db={
     'user':'codakcodak',
     'password':'dkdrmaghEl83!',
-    'host':'localhost',
+    'host':'118.42.101.135',
     'port':3306,
     'database':'test_miniter'
 }
 
-DB_URL=f"mysql+mysqlconnector://{test_db['user']}:{test_db['password']}@{test_db['host']}:{test_db['port']}/{test_db['database']}?charset=utf8"
+DB_URL=f"mysql+mysqlconnector://{db['user']}:{db['password']}@{db['host']}:{db['port']}/{test_db['database']}?charset=utf8"
 test_config={
     'DB_URL':f"mysql+mysqlconnector://{test_db['user']}:{test_db['password']}@{test_db['host']}:{test_db['port']}/{test_db['database']}?charset=utf8",
     'JWT_SECRET_KEY':"codak",
