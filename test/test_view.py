@@ -6,11 +6,16 @@ import config
 from app import create_app
 import pytest
 from sqlalchemy import create_engine,text
+from unittest import mock
+import io
 
 database=create_engine(config.test_config['DB_URL'],encoding='utf-8',max_overflow=0)
 
 @pytest.fixture()
-def api():
+@mock.patch("app.boto3")
+def api(mock_boto3):
+    mock_boto3.client.return_value=mock.Mock()
+    
     app=create_app(test_config=config.test_config)
     app.config['TEST']=True
     api=app.test_client()
@@ -287,3 +292,33 @@ def test_unfollow(api):
         'user_id':1,
         'timeline':[]
     }
+    
+def test_save_and_get_profile_picture(api):
+    resp=api.post(
+        '/login',
+        data=json.dumps({
+            'email':'test1@naver.com',
+            'password':'test'
+        }),content_type='application/json'
+    )
+
+    assert resp.status_code==200
+    
+    json_data=json.loads(resp.data.decode('utf-8'))
+    access_token=json_data['access_token']
+
+    resp=api.post('/profile-picture',
+        data={'profile_pic':(io.BytesIO(b'some imagee here'),'profile.png')},
+        headers={'Authorization':access_token},
+        content_type='multipart/form-data'
+        )
+
+    assert resp.status_code==200
+
+    resp=api.get('/profile-picture/1')
+    
+    assert resp.status_code==200
+
+    json_data=json.loads(resp.data.decode('utf-8'))
+
+    assert json_data['img_url']==f"{config.test_config['S3_BUCKET_URL']}profile.png"

@@ -2,13 +2,15 @@ import bcrypt
 import jwt
 from datetime import datetime, timedelta
 import os
+import boto3
 
 jwtExpireTime=  timedelta(seconds=600)
 
 class UserService:
-    def __init__(self,user_dao,config):
+    def __init__(self,user_dao,config,s3_client):
         self.user_dao=user_dao
         self.config=config
+        self.s3=s3_client
         
     def get_user_id_and_password(self,email):
         return self.user_dao.get_user_id_and_password(email)
@@ -45,12 +47,23 @@ class UserService:
     def unfollow(self,user_id,unfollow_id):
         return self.user_dao.insert_unfollow(user_id,unfollow_id)
 
-    def save_profile_picture(self,picture,filename,user_id):
-        profile_pic_path_and_name=os.path.join(self.config['UPLOAD_DIR'],filename)
-        print(profile_pic_path_and_name)
-        picture.save(profile_pic_path_and_name)
-        print(os.path.os.getcwd())
-        return self.user_dao.save_profile_picture(profile_pic_path_and_name,user_id)
+    # def save_profile_picture(self,picture,filename,user_id):
+    #     profile_pic_path_and_name=os.path.join(self.config['UPLOAD_DIR'],filename)
+    #     print(profile_pic_path_and_name)
+    #     picture.save(profile_pic_path_and_name)
+    #     print(os.path.os.getcwd())
+    #     return self.user_dao.save_profile_picture(profile_pic_path_and_name,user_id)
     
     def get_profile_picture(self,user_id):
+        
         return self.user_dao.get_profile_picture(user_id)
+    
+    def save_profile_picture(self,picture,filename,user_id):
+        self.s3.upload_fileobj(
+            picture,
+            self.config['S3_BUCKET'],
+            filename
+        )
+        img_url=f"{self.config['S3_BUCKET_URL']}{filename}"
+        return self.user_dao.save_profile_picture(img_url,user_id)
+       

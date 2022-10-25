@@ -77,12 +77,22 @@ def UserEndpoint(app,service):
         
         return f"{result}개 저장완료!",200
     
+    # @app.route("/profile-picture/<int:user_id>",methods=["GET"])
+    # def get_profile_picture(user_id):
+    #     profile_picture=user_service.get_profile_picture(user_id)
+        
+    #     if profile_picture:
+    #         return send_file(profile_picture)
+        
+    #     else:
+    #         return '',404
+        
     @app.route("/profile-picture/<int:user_id>",methods=["GET"])
     def get_profile_picture(user_id):
         profile_picture=user_service.get_profile_picture(user_id)
         
         if profile_picture:
-            return send_file(profile_picture)
+            return jsonify({'img_url':profile_picture})
         
         else:
             return '',404

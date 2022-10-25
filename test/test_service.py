@@ -9,12 +9,15 @@ import config
 from model import UserDao,TweetDao
 from service import UserService,TweetService
 from sqlalchemy import create_engine,text
+from unittest import mock
 
 database=create_engine(config.test_config['DB_URL'],encoding='utf-8',max_overflow=0)
+    
 
 @pytest.fixture
 def user_service():
-    return UserService(UserDao(database),config.test_config)
+    mock_s3_client=mock.Mock()
+    return UserService(UserDao(database),config.test_config,mock_s3_client)
 
 @pytest.fixture
 def tweet_service():
@@ -185,4 +188,23 @@ def test_timeline(user_service,tweet_service):
         'user_id':2,
         'tweet':"test2"
     }]
+    
+def test_save_and_get_profile_picture(user_service):
+    user_id=1
+    #아직 저장한 사진이 없으므로 None이 나와야 한다.
+    user_profile_picture=user_service.get_profile_picture(user_id)
+
+    assert user_profile_picture is None
+    
+    test_pic=mock.Mock()
+    
+    filename="test.png"
+    
+    user_service.save_profile_picture(test_pic,filename,user_id)
+
+    actual_profile_picture=user_service.get_profile_picture(user_id)
+
+    assert actual_profile_picture=="http://s3.amazonaws.com/test.png"
+    
+    
     

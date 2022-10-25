@@ -16,7 +16,7 @@ def login_required(f):
                 print(payload)
                 print(datetime.fromtimestamp(payload['iat']))
             except:
-                return jsonify({"message":"유효하지 않은 토큰이거나 토큰 검증과정에서 에러가 났습니다."}),404
+                return jsonify({"message":"유효하지 않은 토큰이거나 토큰 검증과정에서 에러가 났습니다."}),401
             if 'user_id' in payload and payload['user_id'] is not None:
                 user_id=payload['user_id']
                 g.user_id=user_id

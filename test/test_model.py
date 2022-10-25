@@ -18,6 +18,25 @@ def tweet_dao():
     return TweetDao(database)
 
 def setup_function():
+    print("======teardown_function======")
+    print("테이블 초기화중")
+    database.execute(text("""
+        set foreign_key_checks=0
+    """))
+    database.execute(text("""
+        truncate users
+    """))
+    database.execute(text("""
+        truncate tweets
+    """))
+    database.execute(text("""
+        truncate users_follow_list
+    """))
+    database.execute(text("""
+        set foreign_key_checks=1
+    """))
+    print("테이블 초기화 완료!!!")
+    print("==========================")
     print("======setup function======")
     print("데이터베이스 저장중")
     hashed_password1=bcrypt.hashpw(
@@ -190,3 +209,15 @@ def test_get_timeline(user_dao,tweet_dao):
             'tweet':'tweet test2'
         }
     ]
+
+def test_save_and_get_profile_picture(user_dao):
+    test_img_url="http://test_img"
+    result=user_dao.save_profile_picture(test_img_url,1)
+
+    assert result==1
+
+    img_url=user_dao.get_profile_picture(1)
+    
+    assert img_url==test_img_url
+
+    
